@@ -1,32 +1,68 @@
 import React from "react";
-import Icon from "./Icon";
+import { Draggable, Droppable } from "react-beautiful-dnd";
+import { MainComponent } from "./MainComponent";
+import { motions, looks } from "../constants/sidebar-contants";
+import { useAppSelector } from "../redux/store";
 
-export default function Sidebar() {
+const Sidebar = () => {
+  const app = useAppSelector((state) => state.app);
+
+  /**
+   * Renders a list of components with drag and drop functionality.
+   *
+   * @param components - An array of component names to render.
+   * @param droppableId - The id of the droppable area for the components.
+   * @returns The JSX element representing the list of components with drag and drop support.
+   */
+  const renderComponents = (components, droppableId) => (
+    <Droppable droppableId={droppableId} type="COMPONENTS">
+      {(provided) => (
+        <ul
+          {...provided.droppableProps}
+          ref={provided.innerRef}
+          className="mt-3 mb-3 w-full"
+        >
+          {components.map((x, i) => (
+            <Draggable
+              key={`${x}-${droppableId}`}
+              draggableId={`${x}-${droppableId}`}
+              index={i}
+            >
+              {(provided) => (
+                <li
+                  ref={provided.innerRef}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  className="mt-2 mb-2 w-full truncate"
+                >
+                  {MainComponent(x, String(app.appId))}
+                </li>
+              )}
+            </Draggable>
+          ))}
+          {provided.placeholder}
+        </ul>
+      )}
+    </Droppable>
+  );
+
   return (
-    <div className="w-60 flex-none h-full overflow-y-auto flex flex-col items-start p-2 border-r border-gray-200">
-      <div className="font-bold"> {"Events"} </div>
-      <div className="flex flex-row flex-wrap bg-yellow-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"When "}
-        <Icon name="flag" size={15} className="text-green-600 mx-2" />
-        {"clicked"}
+    <div className="w-full md:w-60 h-full overflow-y-auto overflow-x-hidden flex flex-col p-2 border-r border-gray-300">
+      <div className="font-bold mb-5 text-center border-2 border-gray-300 rounded bg-violet-600 text-white p-2 w-full">
+        Tasks
       </div>
-      <div className="flex flex-row flex-wrap bg-yellow-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"When this sprite clicked"}
+
+      <div className="bg-violet-500 rounded p-2 mb-2">
+        <div className="font-bold text-white text-center">Motion</div>
+        {renderComponents(motions, "sideArea-motion")}
       </div>
-      <div className="font-bold"> {"Motion"} </div>
-      <div className="flex flex-row flex-wrap bg-blue-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"Move 10 steps"}
-      </div>
-      <div className="flex flex-row flex-wrap bg-blue-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"Turn "}
-        <Icon name="undo" size={15} className="text-white mx-2" />
-        {"15 degrees"}
-      </div>
-      <div className="flex flex-row flex-wrap bg-blue-500 text-white px-2 py-1 my-2 text-sm cursor-pointer">
-        {"Turn "}
-        <Icon name="redo" size={15} className="text-white mx-2" />
-        {"15 degrees"}
+
+      <div className="bg-violet-500 rounded p-2">
+        <div className="font-bold text-white text-center">Looks</div>
+        {renderComponents(looks, "sideArea-looks")}
       </div>
     </div>
   );
-}
+};
+
+export default Sidebar;
